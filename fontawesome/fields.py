@@ -4,17 +4,10 @@ from django.utils.translation import ugettext as _
 from . import Icon
 from forms import IconFormField
 
-try:
-    from django.db.models import SubfieldBase
-    META_CLASS_TYPE = SubfieldBase
-except ImportError:
-    META_CLASS_TYPE = type
-
 
 class IconField(models.Field):
 
     description = _('A fontawesome icon field')
-    __metaclass__ = META_CLASS_TYPE
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 60
@@ -23,6 +16,11 @@ class IconField(models.Field):
 
     def get_internal_type(self):
         return 'CharField'
+    
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return value
+        return str(value)
 
     def to_python(self, value):
         if not value or value == 'None':
